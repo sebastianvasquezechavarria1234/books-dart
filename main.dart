@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'lib/book.dart';
+import 'lib/storage.dart';
 
-void main() {
-  List<Book> books = [];
+void main() async {
+  final storage = BookStorage('books.json');
+  List<Book> books = await storage.loadBooks();
 
   print('===== WELCOME TO THE BOOK CRUD =====');
 
@@ -24,15 +26,18 @@ void main() {
     switch (option) {
       case 1:
         addBook(books);
+        await storage.saveBooks(books);
         break;
       case 2:
         viewBooks(books);
         break;
       case 3:
         updateBook(books);
+        await storage.saveBooks(books);
         break;
       case 4:
         deleteBook(books);
+        await storage.saveBooks(books);
         break;
       case 5:
         continueRunning = false;
