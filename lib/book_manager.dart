@@ -59,6 +59,16 @@ class BookManager {
     return _books[index];
   }
 
+  List<Book> searchByTitle(String query) {
+    final lowerQuery = query.toLowerCase();
+    return _books.where((b) => b.title.toLowerCase().contains(lowerQuery)).toList();
+  }
+
+  List<Book> searchByAuthor(String query) {
+    final lowerQuery = query.toLowerCase();
+    return _books.where((b) => b.author.toLowerCase().contains(lowerQuery)).toList();
+  }
+
   void _save() {
     _storage.saveBooks(_books);
   }

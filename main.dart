@@ -14,14 +14,15 @@ void main() async {
   while (continueRunning) {
     print('Select an option:');
     print('1) Create');
-    print('2) View');
+    print('2) View All');
     print('3) Edit');
     print('4) Delete');
-    print('5) Exit');
+    print('5) Search');
+    print('6) Exit');
 
     int? option = int.tryParse(stdin.readLineSync() ?? '');
     if (option == null) {
-      print('Please enter a valid number (1-5).');
+      print('Please enter a valid number (1-6).');
       continue;
     }
 
@@ -39,13 +40,47 @@ void main() async {
         deleteBookUI(manager);
         break;
       case 5:
+        searchBooksUI(manager);
+        break;
+      case 6:
         continueRunning = false;
         print('Exiting...');
         break;
       default:
-        print('Invalid option. Choose between 1 and 5.');
+        print('Invalid option. Choose between 1 and 6.');
     }
   }
+}
+
+void searchBooksUI(BookManager manager) {
+  print('\n--- Search Books ---');
+  print('1) Search by Title');
+  print('2) Search by Author');
+  stdout.write('Select an option: ');
+  String choice = stdin.readLineSync() ?? '';
+
+  stdout.write('Enter search query: ');
+  String query = stdin.readLineSync() ?? '';
+
+  List<Book> results;
+  if (choice == '1') {
+    results = manager.searchByTitle(query);
+  } else if (choice == '2') {
+    results = manager.searchByAuthor(query);
+  } else {
+    print('Invalid search option.');
+    return;
+  }
+
+  print('\n--- Search Results ---');
+  if (results.isEmpty) {
+    print('No matches found.');
+  } else {
+    for (var book in results) {
+      print(book.toString());
+    }
+  }
+  print('');
 }
 
 void addBookUI(BookManager manager) {
