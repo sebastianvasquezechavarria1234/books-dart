@@ -69,6 +69,30 @@ class BookManager {
     return _books.where((b) => b.author.toLowerCase().contains(lowerQuery)).toList();
   }
 
+  void sortBy(String criteria, {bool ascending = true}) {
+    int Function(Book, Book) comparator;
+
+    switch (criteria.toLowerCase()) {
+      case 'title':
+        comparator = (a, b) => a.title.compareTo(b.title);
+        break;
+      case 'author':
+        comparator = (a, b) => a.author.compareTo(b.author);
+        break;
+      case 'year':
+        comparator = (a, b) => a.year.compareTo(b.year);
+        break;
+      default:
+        return;
+    }
+
+    _books.sort(comparator);
+    if (!ascending) {
+      _books = _books.reversed.toList();
+    }
+    _save();
+  }
+
   void _save() {
     _storage.saveBooks(_books);
   }

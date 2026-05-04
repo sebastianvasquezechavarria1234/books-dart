@@ -18,11 +18,12 @@ void main() async {
     print('3) Edit');
     print('4) Delete');
     print('5) Search');
-    print('6) Exit');
+    print('6) Sort');
+    print('7) Exit');
 
     int? option = int.tryParse(stdin.readLineSync() ?? '');
     if (option == null) {
-      print('Please enter a valid number (1-6).');
+      print('Please enter a valid number (1-7).');
       continue;
     }
 
@@ -43,13 +44,44 @@ void main() async {
         searchBooksUI(manager);
         break;
       case 6:
+        sortBooksUI(manager);
+        break;
+      case 7:
         continueRunning = false;
         print('Exiting...');
         break;
       default:
-        print('Invalid option. Choose between 1 and 6.');
+        print('Invalid option. Choose between 1 and 7.');
     }
   }
+}
+
+void sortBooksUI(BookManager manager) {
+  print('\n--- Sort Books ---');
+  print('1) By Title');
+  print('2) By Author');
+  print('3) By Year');
+  stdout.write('Select criteria: ');
+  String choice = stdin.readLineSync() ?? '';
+
+  stdout.write('Order (1: Ascending, 2: Descending): ');
+  String order = stdin.readLineSync() ?? '';
+  bool ascending = order != '2';
+
+  String criteria;
+  if (choice == '1') {
+    criteria = 'title';
+  } else if (choice == '2') {
+    criteria = 'author';
+  } else if (choice == '3') {
+    criteria = 'year';
+  } else {
+    print('Invalid sort option.');
+    return;
+  }
+
+  manager.sortBy(criteria, ascending: ascending);
+  print('Books sorted successfully.\n');
 }
 
 void searchBooksUI(BookManager manager) {
