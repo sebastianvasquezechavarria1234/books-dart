@@ -93,6 +93,28 @@ class BookManager {
     _save();
   }
 
+  Map<String, dynamic> getStatistics() {
+    if (_books.isEmpty) return {};
+
+    final total = _books.length;
+    final newest = _books.reduce((a, b) => a.year > b.year ? a : b);
+    final oldest = _books.reduce((a, b) => a.year < b.year ? a : b);
+
+    // Count books per author
+    final authorCounts = <String, int>{};
+    for (var book in _books) {
+      authorCounts[book.author] = (authorCounts[book.author] ?? 0) + 1;
+    }
+    final topAuthor = authorCounts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+
+    return {
+      'total': total,
+      'newest': newest,
+      'oldest': oldest,
+      'topAuthor': topAuthor,
+    };
+  }
+
   void _save() {
     _storage.saveBooks(_books);
   }

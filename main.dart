@@ -19,11 +19,12 @@ void main() async {
     print('4) Delete');
     print('5) Search');
     print('6) Sort');
-    print('7) Exit');
+    print('7) Statistics');
+    print('8) Exit');
 
     int? option = int.tryParse(stdin.readLineSync() ?? '');
     if (option == null) {
-      print('Please enter a valid number (1-7).');
+      print('Please enter a valid number (1-8).');
       continue;
     }
 
@@ -47,13 +48,31 @@ void main() async {
         sortBooksUI(manager);
         break;
       case 7:
+        showStatisticsUI(manager);
+        break;
+      case 8:
         continueRunning = false;
         print('Exiting...');
         break;
       default:
-        print('Invalid option. Choose between 1 and 7.');
+        print('Invalid option. Choose between 1 and 8.');
     }
   }
+}
+
+void showStatisticsUI(BookManager manager) {
+  final stats = manager.getStatistics();
+  print('\n--- Library Statistics ---');
+  if (stats.isEmpty) {
+    print('No data available.');
+    return;
+  }
+
+  print('Total Books: ${stats['total']}');
+  print('Most Frequent Author: ${stats['topAuthor']}');
+  print('Newest Book: ${stats['newest'].title} (${stats['newest'].year})');
+  print('Oldest Book: ${stats['oldest'].title} (${stats['oldest'].year})');
+  print('');
 }
 
 void sortBooksUI(BookManager manager) {
