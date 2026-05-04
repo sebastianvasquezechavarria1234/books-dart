@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'lib/book.dart';
 import 'lib/storage.dart';
+import 'lib/book_manager.dart';
 
 void main() async {
   final storage = BookStorage('books.json');
-  List<Book> books = await storage.loadBooks();
+  final manager = BookManager(storage);
+  await manager.init();
 
   print('===== WELCOME TO THE BOOK CRUD =====');
 
@@ -25,19 +27,16 @@ void main() async {
 
     switch (option) {
       case 1:
-        addBook(books);
-        await storage.saveBooks(books);
+        addBookUI(manager);
         break;
       case 2:
-        viewBooks(books);
+        viewBooksUI(manager);
         break;
       case 3:
-        updateBook(books);
-        await storage.saveBooks(books);
+        updateBookUI(manager);
         break;
       case 4:
-        deleteBook(books);
-        await storage.saveBooks(books);
+        deleteBookUI(manager);
         break;
       case 5:
         continueRunning = false;
@@ -49,7 +48,7 @@ void main() async {
   }
 }
 
-void addBook(List<Book> books) {
+void addBookUI(BookManager manager) {
   print('\n--- Create Book ---');
   stdout.write('Title: ');
   String title = stdin.readLineSync() ?? '';
@@ -59,12 +58,13 @@ void addBook(List<Book> books) {
   String yearInput = stdin.readLineSync() ?? '';
   int year = int.tryParse(yearInput) ?? 0;
 
-  books.add(Book(title: title, author: author, year: year));
+  manager.add(Book(title: title, author: author, year: year));
   print('Book registered successfully.\n');
 }
 
-void viewBooks(List<Book> books) {
+void viewBooksUI(BookManager manager) {
   print('\n--- Book List ---');
+  final books = manager.books;
   if (books.isEmpty) {
     print('No books registered.');
     return;
@@ -75,53 +75,60 @@ void viewBooks(List<Book> books) {
   print('');
 }
 
-void updateBook(List<Book> books) {
-  if (books.isEmpty) {
+void updateBookUI(BookManager manager) {
+  if (manager.books.isEmpty) {
     print('No books to edit.');
     return;
   }
   print('\n--- Edit Book ---');
-  viewBooks(books);
+  viewBooksUI(manager);
   stdout.write('Enter the index of the book to update: ');
   int? index = int.tryParse(stdin.readLineSync() ?? '');
-  if (index == null || index < 0 || index >= books.length) {
+  if (index == null) {
     print('Invalid index.');
     return;
   }
 
-  var book = books[index];
+  var book = manager.getAt(index);
+  if (book == null) {
+    print('Book not found.');
+    return;
+  }
 
   stdout.write('New title (enter to keep "${book.title}"): ');
   String inputTitle = stdin.readLineSync() ?? '';
-  if (inputTitle.trim().isNotEmpty) book.title = inputTitle.trim();
-
+  
   stdout.write('New author (enter to keep "${book.author}"): ');
   String inputAuthor = stdin.readLineSync() ?? '';
-  if (inputAuthor.trim().isNotEmpty) book.author = inputAuthor.trim();
 
   stdout.write('New year (enter to keep ${book.year}): ');
   String inputYear = stdin.readLineSync() ?? '';
-  if (inputYear.trim().isNotEmpty) {
-    book.year = int.tryParse(inputYear) ?? book.year;
-  }
+  int? year = inputYear.trim().isNotEmpty ? int.tryParse(inputYear) : null;
 
-  print('Book updated successfully.\n');
+  if (manager.update(index, title: inputTitle, author: inputAuthor, year: year)) {
+    print('Book updated successfully.\n');
+  } else {
+    print('Failed to update book.\n');
+  }
 }
 
-void deleteBook(List<Book> books) {
-  if (books.isEmpty) {
+void deleteBookUI(BookManager manager) {
+  if (manager.books.isEmpty) {
     print('No books to delete.');
     return;
   }
   print('\n--- Delete Book ---');
-  viewBooks(books);
+  viewBooksUI(manager);
   stdout.write('Enter the index of the book to delete: ');
   int? index = int.tryParse(stdin.readLineSync() ?? '');
-  if (index == null || index < 0 || index >= books.length) {
+  if (index == null) {
     print('Invalid index.');
     return;
   }
 
-  books.removeAt(index);
-  print('Book deleted successfully.\n');
+  if (manager.remove(index)) {
+    print('Book deleted successfully.\n');
+  } else {
+    print('Failed to delete book.\n');
+  }
 }
