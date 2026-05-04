@@ -1,11 +1,13 @@
 import 'book.dart';
 import 'storage.dart';
+import 'logger.dart';
 
 class BookManager {
   final BookStorage _storage;
+  final AppLogger? _logger;
   List<Book> _books = [];
 
-  BookManager(this._storage);
+  BookManager(this._storage, [this._logger]);
 
   List<Book> get books => List.unmodifiable(_books);
 
@@ -16,6 +18,7 @@ class BookManager {
   void add(Book book) {
     _validateBook(book);
     _books.add(book);
+    _logger?.log('Added new book: ${book.title}');
     _save();
   }
 
@@ -35,6 +38,7 @@ class BookManager {
       _books[index].year = year;
     }
     
+    _logger?.log('Updated book at index $index: ${_books[index].title}');
     _save();
     return true;
   }
@@ -49,7 +53,8 @@ class BookManager {
 
   bool remove(int index) {
     if (index < 0 || index >= _books.length) return false;
-    _books.removeAt(index);
+    final removedBook = _books.removeAt(index);
+    _logger?.log('Removed book: ${removedBook.title}');
     _save();
     return true;
   }

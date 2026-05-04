@@ -1,11 +1,12 @@
-import 'dart:io';
 import 'lib/book.dart';
 import 'lib/storage.dart';
 import 'lib/book_manager.dart';
+import 'lib/logger.dart';
 
 void main() async {
   final storage = BookStorage('books.json');
-  final manager = BookManager(storage);
+  final logger = AppLogger('app.log');
+  final manager = BookManager(storage, logger);
   await manager.init();
 
   print('===== WELCOME TO THE BOOK CRUD =====');
