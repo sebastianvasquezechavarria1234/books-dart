@@ -50,16 +50,25 @@ void main() async {
 
 void addBookUI(BookManager manager) {
   print('\n--- Create Book ---');
-  stdout.write('Title: ');
-  String title = stdin.readLineSync() ?? '';
-  stdout.write('Author: ');
-  String author = stdin.readLineSync() ?? '';
-  stdout.write('Year (number): ');
-  String yearInput = stdin.readLineSync() ?? '';
-  int year = int.tryParse(yearInput) ?? 0;
+  try {
+    stdout.write('Title: ');
+    String title = stdin.readLineSync() ?? '';
+    stdout.write('Author: ');
+    String author = stdin.readLineSync() ?? '';
+    stdout.write('Year (number): ');
+    String yearInput = stdin.readLineSync() ?? '';
+    int? year = int.tryParse(yearInput);
 
-  manager.add(Book(title: title, author: author, year: year));
-  print('Book registered successfully.\n');
+    if (year == null) {
+      print('Error: Year must be a valid number.');
+      return;
+    }
+
+    manager.add(Book(title: title, author: author, year: year));
+    print('Book registered successfully.\n');
+  } catch (e) {
+    print('Error creating book: ${e.toString().replaceFirst('Invalid argument(s): ', '')}');
+  }
 }
 
 void viewBooksUI(BookManager manager) {
@@ -82,33 +91,45 @@ void updateBookUI(BookManager manager) {
   }
   print('\n--- Edit Book ---');
   viewBooksUI(manager);
-  stdout.write('Enter the index of the book to update: ');
-  int? index = int.tryParse(stdin.readLineSync() ?? '');
-  if (index == null) {
-    print('Invalid index.');
-    return;
-  }
-
-  var book = manager.getAt(index);
-  if (book == null) {
-    print('Book not found.');
-    return;
-  }
-
-  stdout.write('New title (enter to keep "${book.title}"): ');
-  String inputTitle = stdin.readLineSync() ?? '';
   
-  stdout.write('New author (enter to keep "${book.author}"): ');
-  String inputAuthor = stdin.readLineSync() ?? '';
+  try {
+    stdout.write('Enter the index of the book to update: ');
+    int? index = int.tryParse(stdin.readLineSync() ?? '');
+    if (index == null) {
+      print('Invalid index.');
+      return;
+    }
 
-  stdout.write('New year (enter to keep ${book.year}): ');
-  String inputYear = stdin.readLineSync() ?? '';
-  int? year = inputYear.trim().isNotEmpty ? int.tryParse(inputYear) : null;
+    var book = manager.getAt(index);
+    if (book == null) {
+      print('Book not found.');
+      return;
+    }
 
-  if (manager.update(index, title: inputTitle, author: inputAuthor, year: year)) {
-    print('Book updated successfully.\n');
-  } else {
-    print('Failed to update book.\n');
+    stdout.write('New title (enter to keep "${book.title}"): ');
+    String inputTitle = stdin.readLineSync() ?? '';
+    
+    stdout.write('New author (enter to keep "${book.author}"): ');
+    String inputAuthor = stdin.readLineSync() ?? '';
+
+    stdout.write('New year (enter to keep ${book.year}): ');
+    String inputYear = stdin.readLineSync() ?? '';
+    int? year;
+    if (inputYear.trim().isNotEmpty) {
+      year = int.tryParse(inputYear);
+      if (year == null) {
+        print('Error: Year must be a valid number.');
+        return;
+      }
+    }
+
+    if (manager.update(index, title: inputTitle, author: inputAuthor, year: year)) {
+      print('Book updated successfully.\n');
+    } else {
+      print('Failed to update book.\n');
+    }
+  } catch (e) {
+    print('Error updating book: ${e.toString().replaceFirst('Invalid argument(s): ', '')}');
   }
 }
 

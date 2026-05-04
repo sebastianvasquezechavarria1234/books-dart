@@ -14,6 +14,7 @@ class BookManager {
   }
 
   void add(Book book) {
+    _validateBook(book);
     _books.add(book);
     _save();
   }
@@ -21,12 +22,29 @@ class BookManager {
   bool update(int index, {String? title, String? author, int? year}) {
     if (index < 0 || index >= _books.length) return false;
     
-    if (title != null && title.isNotEmpty) _books[index].title = title;
-    if (author != null && author.isNotEmpty) _books[index].author = author;
-    if (year != null) _books[index].year = year;
+    if (title != null && title.trim().isNotEmpty) {
+      _books[index].title = title.trim();
+    }
+    if (author != null && author.trim().isNotEmpty) {
+      _books[index].author = author.trim();
+    }
+    if (year != null) {
+      if (year < 0 || year > DateTime.now().year + 5) {
+        throw ArgumentError('Invalid year: $year');
+      }
+      _books[index].year = year;
+    }
     
     _save();
     return true;
+  }
+
+  void _validateBook(Book book) {
+    if (book.title.trim().isEmpty) throw ArgumentError('Title cannot be empty');
+    if (book.author.trim().isEmpty) throw ArgumentError('Author cannot be empty');
+    if (book.year < 0 || book.year > DateTime.now().year + 5) {
+      throw ArgumentError('Invalid year: ${book.year}');
+    }
   }
 
   bool remove(int index) {
