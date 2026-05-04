@@ -1,134 +1,122 @@
 import 'dart:io';
+import 'lib/book.dart';
 
 void main() {
-  List<Map<String, dynamic>> libros = [];
+  List<Book> books = [];
 
-  print('===== BIENVENIDO AL CRUD DE LIBROS =====');
+  print('===== WELCOME TO THE BOOK CRUD =====');
 
-  bool continuar = true;
-  while (continuar) {
-    print('Selecciona una opción:');
-    print('1) Crear');
-    print('2) Visualizar');
-    print('3) Editar');
-    print('4) Eliminar');
-    print('5) Salir');
+  bool continueRunning = true;
+  while (continueRunning) {
+    print('Select an option:');
+    print('1) Create');
+    print('2) View');
+    print('3) Edit');
+    print('4) Delete');
+    print('5) Exit');
 
-    int? opcion = int.tryParse(stdin.readLineSync() ?? '');
-    if (opcion == null) {
-      print('Por favor ingresa un número válido (1-5).');
+    int? option = int.tryParse(stdin.readLineSync() ?? '');
+    if (option == null) {
+      print('Please enter a valid number (1-5).');
       continue;
     }
 
-    switch (opcion) {
+    switch (option) {
       case 1:
-        agregar(libros);
+        addBook(books);
         break;
       case 2:
-        visualizar(libros);
+        viewBooks(books);
         break;
       case 3:
-        actualizar(libros);
+        updateBook(books);
         break;
       case 4:
-        eliminar(libros);
+        deleteBook(books);
         break;
       case 5:
-        continuar = false;
-        print('Saliendo...');
+        continueRunning = false;
+        print('Exiting...');
         break;
       default:
-        print('Opción no válida. Elige entre 1 y 5.');
+        print('Invalid option. Choose between 1 and 5.');
     }
   }
 }
 
-void agregar(List<Map<String, dynamic>> libros) {
-  print('');
-  print('--- Crear libro ---');
-  stdout.write('Título: ');
-  String titulo = stdin.readLineSync() ?? '';
-  stdout.write('Autor: ');
-  String autor = stdin.readLineSync() ?? '';
-  stdout.write('Año (número): ');
-  String anioInput = stdin.readLineSync() ?? '';
-  int anio = int.tryParse(anioInput) ?? 0;
+void addBook(List<Book> books) {
+  print('\n--- Create Book ---');
+  stdout.write('Title: ');
+  String title = stdin.readLineSync() ?? '';
+  stdout.write('Author: ');
+  String author = stdin.readLineSync() ?? '';
+  stdout.write('Year (number): ');
+  String yearInput = stdin.readLineSync() ?? '';
+  int year = int.tryParse(yearInput) ?? 0;
 
-  libros.add({'titulo': titulo, 'autor': autor, 'anio': anio});
-  print('Libro registrado correctamente.');
-  print('');
+  books.add(Book(title: title, author: author, year: year));
+  print('Book registered successfully.\n');
 }
 
-void visualizar(List<Map<String, dynamic>> libros) {
-  print('');
-  print('--- Lista de libros ---');
-  if (libros.isEmpty) {
-    print('No hay libros registrados.');
+void viewBooks(List<Book> books) {
+  print('\n--- Book List ---');
+  if (books.isEmpty) {
+    print('No books registered.');
     return;
   }
-  for (int i = 0; i < libros.length; i++) {
-    print(
-        '$i: Título: ${libros[i]['titulo']}, Autor: ${libros[i]['autor']}, Año: ${libros[i]['anio']}');
+  for (int i = 0; i < books.length; i++) {
+    print('$i: ${books[i].toString()}');
   }
   print('');
 }
 
-void actualizar(List<Map<String, dynamic>> libros) {
-  if (libros.isEmpty) {
-    print('No hay libros para editar.');
+void updateBook(List<Book> books) {
+  if (books.isEmpty) {
+    print('No books to edit.');
     return;
   }
-  print('');
-  print('--- Editar libro ---');
-  visualizar(libros);
-  stdout.write('Ingresa el índice del libro a actualizar: ');
-  int? indice = int.tryParse(stdin.readLineSync() ?? '');
-  if (indice == null || indice < 0 || indice >= libros.length) {
-    print('Índice inválido.');
+  print('\n--- Edit Book ---');
+  viewBooks(books);
+  stdout.write('Enter the index of the book to update: ');
+  int? index = int.tryParse(stdin.readLineSync() ?? '');
+  if (index == null || index < 0 || index >= books.length) {
+    print('Invalid index.');
     return;
   }
 
-  var libro = libros[indice];
+  var book = books[index];
 
-  stdout.write('Nuevo título (enter para mantener "${libro['titulo']}"): ');
-  String inputTitulo = stdin.readLineSync() ?? '';
-  String titulo = inputTitulo.trim().isEmpty ? libro['titulo'] : inputTitulo.trim();
+  stdout.write('New title (enter to keep "${book.title}"): ');
+  String inputTitle = stdin.readLineSync() ?? '';
+  if (inputTitle.trim().isNotEmpty) book.title = inputTitle.trim();
 
-  stdout.write('Nuevo autor (enter para mantener "${libro['autor']}"): ');
-  String inputAutor = stdin.readLineSync() ?? '';
-  String autor = inputAutor.trim().isEmpty ? libro['autor'] : inputAutor.trim();
+  stdout.write('New author (enter to keep "${book.author}"): ');
+  String inputAuthor = stdin.readLineSync() ?? '';
+  if (inputAuthor.trim().isNotEmpty) book.author = inputAuthor.trim();
 
-  stdout.write('Nuevo año (enter para mantener ${libro['anio']}): ');
-  String inputAnio = stdin.readLineSync() ?? '';
-  int anio;
-  if (inputAnio.trim().isEmpty) {
-    anio = libro['anio'];
-  } else {
-    anio = int.tryParse(inputAnio) ?? libro['anio'];
+  stdout.write('New year (enter to keep ${book.year}): ');
+  String inputYear = stdin.readLineSync() ?? '';
+  if (inputYear.trim().isNotEmpty) {
+    book.year = int.tryParse(inputYear) ?? book.year;
   }
 
-  libros[indice] = {'titulo': titulo, 'autor': autor, 'anio': anio};
-  print('El libro se actualizó correctamente.');
-  print('');
+  print('Book updated successfully.\n');
 }
 
-void eliminar(List<Map<String, dynamic>> libros) {
-  if (libros.isEmpty) {
-    print('No hay libros para eliminar.');
+void deleteBook(List<Book> books) {
+  if (books.isEmpty) {
+    print('No books to delete.');
     return;
   }
-  print('');
-  print('--- Eliminar libro ---');
-  visualizar(libros);
-  stdout.write('Ingresa el índice del libro a eliminar: ');
-  int? indice = int.tryParse(stdin.readLineSync() ?? '');
-  if (indice == null || indice < 0 || indice >= libros.length) {
-    print('Índice inválido.');
+  print('\n--- Delete Book ---');
+  viewBooks(books);
+  stdout.write('Enter the index of the book to delete: ');
+  int? index = int.tryParse(stdin.readLineSync() ?? '');
+  if (index == null || index < 0 || index >= books.length) {
+    print('Invalid index.');
     return;
   }
 
-  // Eliminación directa (sin confirmación)
-  libros.removeAt(indice);
-  print('Libro eliminado correctamente.');
-  print('');
+  books.removeAt(index);
+  print('Book deleted successfully.\n');
 }
